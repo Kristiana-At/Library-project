@@ -16,12 +16,15 @@ private:
 
 public:
 	void open();
+	void createFile();
+
 	void close();
 	void save();
 	void saveas();
+	void saveHelp(String fileNameSave);
 	String convertPath(String& path);
-	void help();
-	int exit();
+	void help()const;
+	bool exit()const;
 
 	void readLines();
 	void readUsers();
@@ -29,20 +32,34 @@ public:
 
 	void login();
 	void logout();
-	void booksAll()const;
-	void booksInfo()const;
 
+	void booksAll();
+	void booksInfo();
 	void booksFind();
-	int booksFindHelp(String searchBy);
+
+	int booksFindHelp(String& searchBy);
+
 	void convertToLower(String& str);
 
 	void booksAdd();
 	void booksRemove();
-	void booksSort(String option);
-	void addUser();
 
+	//SORT functions with helpers
+	void booksSort();// title, author, year, rating
+	void sortByTitleOrAuthor(int by);
+	void sortByYearOrRate(int by);
+	String helperSortTitleAuthor(int get, const Book& book);
+	double helperSortYearOrRate(int get, const Book& book);
+	int booksSortHelp(String& searchBy);
+
+	void addUser();
 	void removeUser();
-	void removeUserFromAllLines(User& user);
+
+	bool isBooksLoaded();
+	bool isUsersLoaded();
+
+	//print function to show the sort
+	void printBooks()const;
 
 	void setFileName(String newFileName);
 	User getUser()const;

@@ -41,7 +41,7 @@ bool User::getIsAdmin()const
 	return this->isAdmin;
 }
 
-bool User::doesExist(Vector<User>& allUsers, String searchedName, String searchedPassword, bool& isAdmin)
+bool User::doesExist(const Vector<User>& allUsers, const String& searchedName, const String& searchedPassword, bool& isAdmin)const
 {
 	size_t sizeVec = allUsers.getSize();
 	for (size_t i = 0; i < sizeVec; i++)
@@ -78,18 +78,6 @@ std::istream& operator>>(std::istream& in, User& other)
 	in >> other.username;
 	in >> other.password;
 	in >> other.isAdmin;
-	in.ignore();//???защо работи
-	return in;
-	/*char newUsername[32];
-	in >> newUsername;
-	other.username.setString(newUsername);
-
-	char newPassword[32];
-	in >> newPassword;
-	other.password.setString(newPassword);
-	
-	in >> other.isAdmin;
-	in.ignore();*/
-
+	in.ignore();
 	return in;
 }

@@ -90,7 +90,7 @@ size_t Book::getLibraryID()const
 	return this->libraryID;
 }
 
-Vector<String> Book::separateString(String str)
+Vector<String> Book::separateString(const String& str)
 {
 	size_t length = str.getLength();
 	String currentWord;
@@ -110,6 +110,20 @@ Vector<String> Book::separateString(String str)
 	}
 	separated.push_back(currentWord);
 	return separated;
+}
+
+bool Book::hasKeyWord(String& word, String& all)
+{
+	Vector<String> separated = separateString(all);
+	size_t size = separated.getSize();
+	for (size_t i = 0; i < size;i++)
+	{
+		if (separated[i] == word)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 std::ostream& operator<<(std::ostream& out, const Book& other)

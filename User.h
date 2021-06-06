@@ -20,7 +20,7 @@ public:
 	void setIsAdmin(bool newIsAdmin);
 	bool getIsAdmin()const;
 
-	bool doesExist(Vector<User>& allUsers, String searchedName, String searchedPassword, bool& isAdmin);
+	bool doesExist(const Vector<User>& allUsers, const String& searchedName, const String& searchedPassword, bool& isAdmin)const;
 	bool operator==(const User& other)const;
 	bool operator!=(const User& other)const;
 

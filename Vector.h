@@ -25,6 +25,8 @@ public:
 	void pop_front();//remove element from the start
 	void push_at(const T& el, int position);//inserts element in a certain position
 	void pop_at(int position);//remove element from a certain position
+	void swap(size_t pos1, size_t pos2);
+	Vector<T>& reverse();
 
 	size_t getSize() const;
 	size_t getCapacity() const;
@@ -231,6 +233,25 @@ template <typename T>
 bool Vector<T>::isEmpty() const
 {
 	return this->size == 0;
+}
+
+template<typename T>
+void Vector<T>::swap(size_t pos1, size_t pos2)
+{
+	T temp = this->data[pos1];
+	this->data[pos1] = this->data[pos2];
+	this->data[pos2] = temp;
+}
+
+template<typename T>
+Vector<T>& Vector<T>::reverse()
+{
+	size_t middleSize = this->size / 2;
+	for (size_t i = 0; i < middleSize; i++)
+	{
+		this->swap(i, this->size - i - 1);
+	}
+	return *this;
 }
 
 template <typename T>

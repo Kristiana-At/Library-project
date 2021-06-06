@@ -3,25 +3,18 @@
 void Commands::open()
 {
 	this->fileName.setString("");
+	this->allLines = {};
 	std::cout << "enter name of file you want to open: ";
 	std::cin >> this->fileName;
 
 	this->readFile.open(this->fileName.getString());
 	if (!(this->readFile.is_open()))
 	{
-		this->writeFile.open(this->fileName.getString());
-		std::cout << this->fileName.getString() << " was created!\n";
-
-		if (strcmp(convertPath(this->fileName).getString(), "Users.txt") == 0)
-		{
-			User newUser, newUser2;
-			String username, username2; username.setString("admin"); 
-			String password; password.setString("i<3c++");
-			newUser.setUsername(username); newUser.setPassword(password); newUser.setIsAdmin(1);
-
-			this->writeFile << newUser;
-		}
-		this->writeFile.close();
+		createFile();
+	}
+	else
+	{
+		std::cout << "Successfuly opened " << convertPath(this->fileName) << std::endl;
 	}
 	this->readFile.close();
 
@@ -36,6 +29,26 @@ void Commands::open()
 	{
 		readBooks();
 	}
+}
+
+void Commands::createFile()
+{
+	this->writeFile.open(this->fileName.getString());
+	std::cout << this->fileName.getString() << " was created!\n";
+
+	if (strcmp(convertPath(this->fileName).getString(), "Users.txt") == 0)
+	{
+		User newUser;
+		String username; 
+		username.setString("admin");
+
+		String password; 
+		password.setString("i<3c++");
+		newUser.setUsername(username); newUser.setPassword(password); newUser.setIsAdmin(1);
+
+		this->writeFile << newUser;
+	}
+	this->writeFile.close();
 }
 
 void Commands::close()
@@ -56,10 +69,9 @@ void Commands::close()
 	this->allUsers = {};
 	this->allBooks = {};
 }
-
-void Commands::save()
+void Commands::saveHelp(String fileNameSave)
 {
-	this->writeFile.open(this->fileName.getString());
+	this->writeFile.open(fileNameSave.getString());
 	if (writeFile.is_open())
 	{
 		if (this->fileName == "Users.txt")
@@ -83,7 +95,7 @@ void Commands::save()
 			this->writeFile.close();
 			return;
 		}
-		
+
 		size_t length = this->allLines.getSize();
 		for (size_t i = 0; i < length;i++)
 		{
@@ -97,29 +109,23 @@ void Commands::save()
 	}
 }
 
+void Commands::save()
+{
+	saveHelp(this->fileName);
+}
+
 void Commands::saveas()
 {
 	this->readFile.close();
 	this->writeFile.close();
-	this->fileName.setString("");
 
+	String newFileName;
 	std::cout << "enter name of new file you want to save: ";
-	std::cin >> this->fileName;
+	std::cin >> newFileName;
 
-	this->writeFile.open(fileName.getString());
-	if (writeFile.is_open())
-	{
-		size_t size = allLines.getSize();
-		for (size_t i = 0; i < size;i++)
-		{
-			this->writeFile << this->allLines[i] << std::endl;
-		}
-		std::cout << "new file created: " << convertPath(this->fileName) << std::endl;
-	}
-	else
-	{
-		std::cout << "Error saving file!";
-	}
+	saveHelp(newFileName);
+	this->fileName.setString(newFileName.getString());
+	std::cout << "new file created: " << convertPath(this->fileName) << std::endl;
 }
 
 String Commands::convertPath(String& path)
@@ -146,23 +152,33 @@ String Commands::convertPath(String& path)
 	return nameNewFile;
 }
 
-void Commands::help()
+void Commands::help()const
 {
 	std::cout << "LIST OF COMMANDS:" << std::endl;
 	std::cout << "---------------------------------------------------" << std::endl;
-	std::cout << "open      opens <file>" << std::endl;
-	std::cout << "close     closes currently opened file" << std::endl;
-	std::cout << "save      saves the currently opened file" << std::endl;
-	std::cout << "saveas    saves the currently opened file as <file>" << std::endl;
-	std::cout << "help      prints this information" << std::endl;
-	std::cout << "exit      exits the program" << std::endl;
+	std::cout << "1.open		 opens <file>" << std::endl;
+	std::cout << "2.close		 closes currently opened file" << std::endl;
+	std::cout << "3.save		 saves the currently opened file" << std::endl;
+	std::cout << "4.saveas	 saves the currently opened file as <file>" << std::endl;
+	std::cout << "5.help		 prints this information" << std::endl;
+	std::cout << "6.exit		 exits the program" << std::endl;
+	std::cout << "7.login		 login to the system" << std::endl;
+	std::cout << "8.logout	 current user logs out" << std::endl;
+	std::cout << "9.books all	 prints information for all books" << std::endl;
+	std::cout << "10.books find	 shows information about a book by certain criteria" << std::endl;
+	std::cout << "11.books sort	 sorts books" << std::endl;
+	std::cout << "12.books view	 search book by id" << std::endl;
+	std::cout << "13.books add	 adds book" << std::endl;
+	std::cout << "14.books remove	 removes book" << std::endl;
+	std::cout << "15.users add	 adds user" << std::endl;
+	std::cout << "16.users remove	 removes user" << std::endl;
 	std::cout << "---------------------------------------------------" << std::endl;
 }
 
-int Commands::exit()
+bool Commands::exit()const
 {
 	std::cout << "Exiting the program..." << std::endl;
-	return 0;
+	return true;
 }
 
 void Commands::readLines()
@@ -181,12 +197,10 @@ void Commands::readLines()
 			}
 			else
 			{
-				//currentLine.add('\n');
 				this->allLines.push_back(currentLine);
 				currentLine.setString("");
 			}
 		}
-		//this->allLines.push_back(currentLine); // for the last line
 		this->readFile.close();
 	}
 	else
@@ -211,18 +225,6 @@ void Commands::readUsers()
 	{
 		std::cout << "Unable to open file!\n";
 	}
-	
-	/*
-	size_t length = this->allLines.getSize();
-	User currentUser;
-	for (size_t indexUsername = 0, indexPassword = 1, indexAdmin = 2; indexAdmin < length; indexUsername += 3, indexPassword += 3, indexAdmin += 3)
-	{
-		currentUser.setUsername(allLines[indexUsername]);
-		currentUser.setPassword(allLines[indexPassword]);
-		currentUser.setIsAdmin((bool)(atoi(allLines[indexAdmin].getString())));
-		this->allUsers.push_back(currentUser);
-	}
-	*/
 }
 
 void Commands::readBooks()
@@ -245,6 +247,10 @@ void Commands::readBooks()
 
 void Commands::login()
 {
+	if (!isUsersLoaded())
+	{
+		return;
+	}
 	bool isAdmin = false;
 	String defaultName;
 	defaultName.setString("defaultUser");
@@ -274,31 +280,31 @@ void Commands::login()
 
 void Commands::logout()
 {
-	std::cout << "Goodbye " << this->user.getUsername() << "!" << std::endl;
-	this->user = User();
+	if (this->user != User())
+	{
+		std::cout << "Goodbye " << this->user.getUsername() << "!" << std::endl;
+		this->user = User();
+	}
+	else
+	{
+		std::cout << "No currently logged user! Choose option 7 to log in!\n";
+	}
 }
 
 void Commands::addUser()
 {
+	this->fileName.setString("Users.txt");
+	if (!isUsersLoaded())
+	{
+		return;
+	}
+
 	this->fileName.setString("Users.txt");
 	User newUser;
 	std::cout << "Enter username, password, admin rights:\n";
 	std::cin >> newUser;
 
 	this->allUsers.push_back(newUser);
-	/*
-	allLines.push_back(newUser.getUsername());
-	allLines.push_back(newUser.getPassword());
-	if (newUser.getIsAdmin())
-	{
-		String isAdmin; isAdmin.setString("1");
-		allLines.push_back(isAdmin);
-	}
-	else
-	{
-		String isNotAdmin; isNotAdmin.setString("0");
-		allLines.push_back(isNotAdmin);
-	}*/
 	save();
 	this->allLines = {};
 	readLines();
@@ -306,6 +312,12 @@ void Commands::addUser()
 
 void Commands::removeUser()
 {
+	this->fileName.setString("Users.txt");
+	if (!isUsersLoaded())
+	{
+		return;
+	}
+
 	String username;
 	std::cout << "Which user you want to remove: ";
 	std::cin >> username;
@@ -314,7 +326,6 @@ void Commands::removeUser()
 	{
 		if (this->allUsers[i].getUsername() == username)
 		{
-			//removeUserFromAllLines(allUsers[i]);
 			this->allUsers.pop_at(i);
 			std::cout << "User removed\n";
 			save();
@@ -327,22 +338,13 @@ void Commands::removeUser()
 	std::cout << "No such user!\n";
 }
 
-void Commands::removeUserFromAllLines(User& user)
-{
-	size_t sizeLines = this->allLines.getSize();
-	for (size_t i = 0; i < sizeLines; i++)
-	{
-		if (this->allLines[i] == user.getUsername())
-		{
-			this->allLines.pop_at(i);
-			this->allLines.pop_at(i);
-			this->allLines.pop_at(i);
-		}
-	}
-}
-
 void Commands::booksAdd()
 {
+	this->fileName.setString("Books.txt");
+	if (!isBooksLoaded())
+	{
+		return;
+	}
 	this->fileName.setString("Books.txt");
 	Book newBook;
 	std::cout << "Enter autho, title, genre, description, year, keyWords, rate, libraryID:\n";
@@ -357,6 +359,11 @@ void Commands::booksAdd()
 
 void Commands::booksRemove()
 {
+	this->fileName.setString("Books.txt");
+	if (!isBooksLoaded())
+	{
+		return;
+	}
 	String bookName;
 	std::cout << "Which book you want to remove: ";
 	std::cin >> bookName;
@@ -377,8 +384,12 @@ void Commands::booksRemove()
 	std::cout << "No such book!\n";
 }
 
-void Commands::booksAll() const
+void Commands::booksAll() 
 {
+	if (!isBooksLoaded())
+	{
+		return;
+	}
 	size_t size = this->allBooks.getSize();
 	for (size_t i = 0; i < size; i++)
 	{
@@ -390,24 +401,37 @@ void Commands::booksAll() const
 	}
 }
 
-void Commands::booksInfo() const
+void Commands::booksInfo() 
 {
+	if (!isBooksLoaded())
+	{
+		return;
+	}
+	int id;
 	std::cout << "Enter ID: ";
-	size_t id;
 	std::cin >> id;
+	std::cin.ignore();
 	size_t size = this->allBooks.getSize();
 	for (size_t i = 0; i < size; i++)
 	{
-		if (allBooks[i].getLibraryID() == id)
+		if (this->allBooks[i].getLibraryID() == id)
 		{
-			std::cout << allBooks[i];
+
+			std::cout << "\nBOOK FOUND!\n";
+
+			std::cout << this->allBooks[i];
 			return;
 		}
 	}
+	std::cout << "\nBOOK NOT FOUND!\n";
 }
 
 void Commands::booksFind()
 {
+	if (!isBooksLoaded())
+	{
+		return;
+	}
 	std::cout << "books find by(title/author/tag) ";
 	String searchBy;
 	std::cin >> searchBy;
@@ -421,17 +445,23 @@ void Commands::booksFind()
 		std::cin >> name;
 		convertToLower(name);
 		size_t size = this->allBooks.getSize();
+		bool isFound = false;
 		for (size_t i = 0; i < size; i++)
 		{
 			String toLower = allBooks[i].getTitle();
 			convertToLower(toLower);
 			if (toLower == name)
 			{
-				std::cout << "\nBOOK FOUND!\n";
-				std::cout << allBooks[i];
-				return;
+				if (!isFound)
+				{
+					std::cout << "\nBOOK FOUND!\n";
+				}
+				std::cout << allBooks[i] << std::endl;
+				isFound = true;
+				//return;
 			}
 		}
+		if (isFound)return;
 		std::cout << "\nBOOK NOT FOUND!\n";
 		break;
 	}
@@ -442,35 +472,48 @@ void Commands::booksFind()
 		std::cin >> name;
 		convertToLower(name);
 		size_t size = this->allBooks.getSize();
+		bool isFound = false;
 		for (size_t i = 0; i < size; i++)
 		{
 			String toLower = allBooks[i].getAuthor();
 			convertToLower(toLower);
 			if (toLower == name)
 			{
-				std::cout << "\nBOOK FOUND!\n";
+				if (!isFound)
+				{
+					std::cout << "\nBOOK FOUND!\n" << std::endl;
+				}
 				std::cout << allBooks[i];
-				return;
+				isFound = true;
 			}
 		}
+		if (isFound)return;
 		std::cout << "\nBOOK NOT FOUND!\n";
 		break;
 	}
 	case 3:
 	{
-		int name;
-		std::cout << "Enter ID: ";
-		std::cin >> name;
+		String keyWord;
+		std::cout << "Enter key word: ";
+		std::cin >> keyWord;
+		convertToLower(keyWord);
+		bool isFound = false;
 		size_t size = this->allBooks.getSize();
 		for (size_t i = 0; i < size; i++)
 		{
-			if (allBooks[i].getLibraryID() == name)
+			String toLower = this->allBooks[i].getKeyWords();
+			convertToLower(toLower);
+			if (allBooks[i].hasKeyWord(keyWord,toLower))
 			{
-				std::cout << "\nBOOK FOUND!\n";
+				if (!isFound)
+				{
+					std::cout << "\nBOOK FOUND!\n" << std::endl;
+				}
 				std::cout << allBooks[i];
-				return;
+				isFound = true;
 			}
 		}
+		if (isFound)return;
 		std::cout << "\nBOOK NOT FOUND!\n";
 		break;
 	}
@@ -482,7 +525,7 @@ void Commands::booksFind()
 	}
 }
 
-int Commands::booksFindHelp(String searchBy)
+int Commands::booksFindHelp(String& searchBy)
 {
 	convertToLower(searchBy);
 	if (searchBy == "title")
@@ -500,16 +543,186 @@ int Commands::booksFindHelp(String searchBy)
 	return 0;
 }
 
+int Commands::booksSortHelp(String& searchBy)// title, author, year, rating
+{
+	convertToLower(searchBy);
+	if (searchBy == "title")
+	{
+		return 1;
+	}
+	if (searchBy == "author")
+	{
+		return 2;
+	}
+	if (searchBy == "year")
+	{
+		return 3;
+	}
+	if (searchBy == "rating")
+	{
+		return 4;
+	}
+	return 0;
+}
+
+void Commands::booksSort()
+{
+	this->fileName.setString("Books.txt");
+	if (!isBooksLoaded())
+	{
+		return;
+	}
+	std::cout << "books sort by(title/author/year/rating) ";
+	String sortBy;
+	std::cin >> sortBy;
+	int chosen = booksSortHelp(sortBy);
+
+	std::cout << "\nChoose:\n1.Ascending\n2.Descending\nEnter(1/2): ";
+	String checkOrder;
+	std::cin >> checkOrder;
+	bool isDescending = (checkOrder == "2" || checkOrder == "desc" || checkOrder == "Descending");
+	switch (chosen)
+	{
+	case 1:
+	{
+		sortByTitleOrAuthor(1);
+		break;
+	}
+	case 2:
+	{
+		sortByTitleOrAuthor(2);
+		break;
+	}
+	case 3:
+	{
+		sortByYearOrRate(3);
+		break;
+	}
+	case 4:
+	{
+		sortByYearOrRate(4);
+		break;
+	}
+	default:
+	{
+		std::cout << "No such criteria for sorting!\n";
+		break;
+	}
+	}	
+	if (isDescending)
+	{
+		this->allBooks.reverse();
+	}
+	printBooks();
+}
+
+
+void Commands::sortByTitleOrAuthor(int by)
+{
+	size_t size = this->allBooks.getSize();
+	for (size_t i = 0;i < size - 1;i++)
+	{
+		for (size_t j = 0;j < size - i - 1;j++)
+		{
+			String iGetName;
+			iGetName = helperSortTitleAuthor(by, this->allBooks[j]);
+			String jGetName;
+			jGetName = helperSortTitleAuthor(by, this->allBooks[j + 1]);
+			if (strcmp(iGetName.getString(), jGetName.getString()) > 0)
+			{
+				this->allBooks.swap(j, j + 1);
+			}
+		}
+	}
+}
+
+void Commands::sortByYearOrRate(int by)
+{
+	size_t size = this->allBooks.getSize();
+	for (size_t i = 0;i < size - 1;i++)
+	{
+		for (size_t j = 0;j < size - i - 1;j++)
+		{
+			double firstGetNum;
+			firstGetNum = helperSortYearOrRate(by, this->allBooks[j]);
+			double secondGetNum;
+			secondGetNum = helperSortYearOrRate(by, this->allBooks[j + 1]);
+			if (firstGetNum > secondGetNum)
+			{
+				this->allBooks.swap(j, j + 1);
+			}
+		}
+	}
+}
+
+String Commands::helperSortTitleAuthor(int get, const Book& book)
+{
+	String str;
+	if (get == 1)
+	{
+		str.setString(book.getTitle().getString());
+	}
+	if (get == 2)
+	{
+		str.setString(book.getAuthor().getString());
+	}
+	convertToLower(str);
+	return str;
+}
+
+double Commands::helperSortYearOrRate(int get, const Book& book)
+{
+	double num = 0;
+	if (get == 3)
+	{
+		num = (double)(book.getYear());
+	}
+	if (get == 4)
+	{
+		num = book.getRate();
+	}
+	return num;
+}
+
 void Commands::convertToLower(String& str)
 {
 	size_t length = str.getLength();
 	for (size_t i = 0; i < length; i++)
 	{
-		if (str[i] < 'a')
+		if (str[i] >= 'A' && str[i] <= 'Z')
 		{
 			str[i] += 32;
 		}
 	}
+}
+
+void Commands::printBooks()const
+{
+	size_t size = this->allBooks.getSize();
+	for (size_t i = 0; i < size;i++)
+	{
+		std::cout << this->allBooks[i] << std::endl;
+	}
+}
+
+bool Commands::isBooksLoaded()
+{
+	if (this->allBooks.isEmpty())
+	{
+		std::cout << "No file loaded...choose option 1 to open Books.txt\n";
+		return false; 
+	}
+	return true;
+}
+
+bool Commands::isUsersLoaded()
+{
+	if (this->allUsers.isEmpty())
+	{
+		std::cout << "No file loaded...choose option 1 to open Users.txt\n";
+		return false;
+	}
+	return true;
 }
 
 void Commands::setFileName(String newFileName)

@@ -35,7 +35,9 @@ public:
 	double getRate()const;
 	void setLibraryID(size_t newLibraryID);
 	size_t getLibraryID()const;
-	Vector<String> separateString(String str);
+
+	Vector<String> separateString(const String& str);
+	bool hasKeyWord(String& word, String& all);
 
 	friend std::ostream& operator<<(std::ostream& out, const Book& other);
 	friend std::istream& operator>>(std::istream& in, Book& other);
